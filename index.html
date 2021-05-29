@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="ISO-8859-1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- Bootstrap CSS -->
+  <link href="https://bootswatch.com/5/lux/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+  <title>Jorge Ávila Gaxiola 28/05/2021</title>
+</head>
+<body>
+  <div class="container-fluid px-5">
+    <div class="alert alert-success messages" id="success-message" style="display: none;"></div>
+    <div class="alert alert-danger messages" id="error-message" style="display: none;"></div>
+    <form id="formAlta" class="row">
+      <h3 class="text-center mt-5">Alta de Alumnos</h3>
+      <div class="form-group col-md-2">
+        <div class="form-floating mb-3">
+          <input type="text" name="txtMatricula" id="txtMatricula" class="form-control form-control-sm" placeholder="Matrícula" required>
+          <label for="txtMatricula">Matrícula</label>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <div class="form-floating mb-3">
+          <input type="text" name="txtNombreCompleto" id="txtNombreCompleto" class="form-control form-control-sm" placeholder="Nombre" required>
+          <label for="txtNombreCompleto">Nombre</label>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <div class="form-floating mb-3">
+          <input type="date" name="txtFechaNacimiento" id="txtFechaNacimiento" class="form-control form-control-sm" placeholder="Fecha de Nacimiento" required>
+          <label for="txtFechaNacimiento">Fecha de Nacimiento</label>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <div class="form-floating mb-3">
+          <select name="cmbGenero" id="cmbGenero" class="form-select form-select-sm" required></select>
+          <label for="cmbGenero">Género</label>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <div class="form-floating mb-3">
+          <select name="cmbGrado" id="cmbGrado" class="form-select form-select-sm" required></select>
+          <label for="cmbGrado">Grado</label>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <button type="submit" class="btn btn-outline-success" id="btnGuardar">Guardar</button>
+      </div>
+    </form>
+    <div class="row">
+      <h3 class="text-center">Consulta de Alumnos</h3>
+      <div class="form-group col-md-4">
+        <div class="form-floating mb-3">
+          <input type="hidden" name="hGradoFiltro" id="hGradoFiltro" value="">
+          <select name="cmbGradoFiltro" id="cmbGradoFiltro" class="form-select form-select-sm" onchange="$('#hGradoFiltro').val(this.value);"></select>
+          <label for="cmbGradoFiltro">Filtrar por Grado</label>
+        </div>
+      </div>
+      <div class="form-group col-md-4">
+        <div class="form-floating mb-3">
+          <input type="hidden" name="hEstatusFiltro" id="hEstatusFiltro" value="">
+          <select name="cmbEstatusFiltro" id="cmbEstatusFiltro" class="form-select form-select-sm" onchange="$('#hEstatusFiltro').val(this.value);"></select>
+          <label for="cmbEstatusFiltro">Filtrar por Estatus</label>
+        </div>
+      </div>
+      <div class="form-group col-md-4">
+        <input type="button" id="btnBuscar" value="Buscar" onclick="loadTable();" class="btn btn-outline-primary">
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Id</th>
+              <th>Matrícula</th>
+              <th>Nombre</th>
+              <th>Fecha de Nacimiento</th>
+              <th>Género</th>
+              <th>Grado</th>
+              <th>Estatus</th>
+              <th>Editar</th>
+              <th>Borrar</th>
+            </tr>
+          </thead>
+          <tbody id="cargarTabla"></tbody>
+          <tfoot id="cargarTablaTotales"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>  
+<!-- Modal para actualizar registros -->
+<div class="modal" id="modal">
+  <div class="modal-dialog" role="document">
+    <form class="modal-content" id="formEditar">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <table cellpadding="10px" width="100%">
+            <tr>
+              <td width="90px">Matrícula</td>
+              <td><input type="text" name="txtMatriculaEditar" id="txtMatriculaEditar" required>
+                  <input type="text" name="hAlumno" id="hAlumno" hidden="">
+              </td>
+            </tr>
+            <tr>
+              <td>Nombre</td>
+              <td><input type="text" name="txtNombreCompletoEditar" id="txtNombreCompletoEditar" required></td>
+            </tr>
+            <tr>
+              <td>Fecha de Nacimiento</td>
+              <td><input type="date" name="txtFechaNacimientoEditar" id="txtFechaNacimientoEditar" required></td>
+            </tr>
+            <tr>
+              <td>Género</td>
+              <td><select name="cmbGeneroEditar" id="cmbGeneroEditar" required></select></td>
+            </tr>
+            <tr>
+              <td>Grado</td>
+              <td><select name="cmbGradoEditar" id="cmbGradoEditar" required></select></td>
+            </tr>
+            <tr>
+              <td>Estatus</td>
+              <td><select name="cmbEstatus" id="cmbEstatus" required></select></td>
+            </tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="submitEditar">Actualizar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+function loadTable(){
+  $("#cargarTabla").html("");
+  $("#cargarTablaTotales").html("");
+
+  $.ajax({
+  url: "api/leerAlumnos.php",
+  type: "GET",
+  data: {intGradoAlumno: $("#cmbGradoFiltro").val(), intEstatusAlumno: $("#cmbEstatusFiltro").val()},
+  success:function(data){
+    
+    $("#cmbGenero").empty();
+    $("#cmbGeneroEditar").empty();
+    var AdjuntarGeneros = "<option value=''>Selecciona</option>";
+    $.each(data.GeneroInfo,function(i,o){
+      AdjuntarGeneros += "<option value="+o.strGenero+">"+o.strIdentidadSexual+"</option>";
+    });
+    $("#cmbGenero").append(AdjuntarGeneros);
+    $("#cmbGeneroEditar").append(AdjuntarGeneros);
+
+    $("#cmbGrado").empty();
+    $("#cmbGradoEditar").empty();
+    $("#cmbGradoFiltro").empty();
+    var AdjuntarGrados = "<option value=''>Selecciona</option>";
+    $.each(data.GradoInfo,function(i,o){
+      AdjuntarGrados += "<option value="+o.intGradoAlumno+">"+o.strGradoAlumno+"</option>";
+    });
+    $("#cmbGrado").append(AdjuntarGrados);
+    $("#cmbGradoEditar").append(AdjuntarGrados);
+    $("#cmbGradoFiltro").append(AdjuntarGrados);
+    $("#cmbGradoFiltro").val($("#hGradoFiltro").val());
+
+    $("#cmbEstatus").empty();
+    $("#cmbEstatusFiltro").empty();
+    var AdjuntarEstatus = "<option value=''>Selecciona</option>";
+    $.each(data.EstatusInfo,function(i,o){
+      AdjuntarEstatus += "<option value="+o.intEstatusAlumno+">"+o.strEstatusAlumno+"</option>";
+    });
+    $("#cmbEstatus").append(AdjuntarEstatus);
+    $("#cmbEstatusFiltro").append(AdjuntarEstatus);
+    $("#cmbEstatusFiltro").val($("#hEstatusFiltro").val());
+
+    if(data.status==false){
+      $("#cargarTabla").append("<tr><td colspan='9'><h2>"+data.message+"</h2></td></tr>");
+    }else{
+      $.each(data.AlumnoInfo,function(key,value){
+      
+      $("#cargarTabla").append("<tr>"+
+        "<td>"+value.intAlumno+"</td>"+
+        "<td>"+value.strMatricula+"</td>"+
+        "<td>"+value.strNombreCompleto+"</td>"+
+        "<td>"+value.datFechaNacimiento+"</td>"+
+        "<td>"+value.strIdentidadSexual+"</td>"+
+        "<td>"+value.strGradoAlumno+"</td>"+
+        "<td>"+value.strEstatusAlumno+"</td>"+
+        "<td class='center'><button class='btnEditar btn btn-outline-info btn-sm' data-id='"+value.intAlumno+"'><i class='bi bi-pencil-square'></i></button></td>"+
+        "<td class='center'><button class='btnBorrar btn btn-outline-danger btn-sm' data-id='"+value.intAlumno+"'><i class='bi bi-trash'></i></button></td>"+
+        "</tr>");
+      });
+      $("#cargarTablaTotales").append("<tr class=table-dark><th colspan=5 class=text-end>Totales por</th><th>Grado</th><th>Estatus</th><th colspan=2 class=text-center>Total</th></tr>");
+      $.each(data.TotalesInfo,function(key,value){
+      
+      $("#cargarTablaTotales").append("<tr>"+
+        "<td colspan=5></td>"+
+        "<td>"+value.strGradoAlumno+"</td>"+
+        "<td>"+value.strEstatusAlumno+"</td>"+
+        "<td colspan=2 class=text-center>"+value.Total+"</td>"+
+        "</tr>");
+      });
+    }
+  }
+  });
+}
+  
+$(document).ready(function(){
+
+loadTable();
+
+function Message(message,status){
+if(status==true){
+ $("#success-message").html(message).slideDown();
+ $("#error-message").slideUp();
+ setTimeout(function(){
+  $("#success-message").slideUp();
+ },4000);
+
+}else if(status==false){
+  $("#error-message").html(message).slideDown();
+  $("#success-message").slideUp();
+  setTimeout(function(){
+  $("#error-message").slideUp();
+ },4000);
+}
+}
+
+  $("#btnGuardar").on("click",function(e){
+  e.preventDefault();
+  var formulario=$('#formAlta').serialize();
+  
+  //validar campos
+  var error = false;
+  $('#formAlta').find( 'select, input' ).each(function(){
+    if( ! $( this ).prop( 'required' )){
+    } else {
+      if ( ! $.trim($( this ).val()) ) {
+        error = true;
+        $( this ).focus();
+        return false;
+      }
+    }
+  });
+  
+  //enviar si el error es diferente a true
+  if ( error ) {
+    Message("Todos los campos son obligatorios.",false);
+  }else{
+    $.ajax({
+      url: "api/crearAlumnos.php",
+      type: "POST",
+      data: formulario,
+      success:function(data){
+       Message(data.message,data.status); 
+         if(data.status==true){
+          loadTable();
+          $("#formAlta").trigger('reset');
+          }
+      }
+     });
+    }
+  });
+
+ $(document).on("click",".btnBorrar",function(){
+  if(confirm("¿Realmente desea borrar este registro?")){
+    var intAlumno=$(this).data("id");
+    var row = this;
+    $.ajax({
+    url: "api/borrarAlumnos.php",
+    type: "GET",
+    data: {id: intAlumno},
+    success:function(data){
+    Message(data.message,data.status);
+      if(data.status==true){
+        $(row).closest("tr").fadeOut();
+         //loadTable(); 
+        } 
+      }
+     });
+   }
+  });
+
+    $(document).on("click",".btnEditar",function(){
+        
+        $('#modal').modal('show');
+        var intAlumno=$(this).data("id");
+    $.ajax({
+    url: "api/leerAlumnos.php",
+    type: "GET",
+    data: {id: intAlumno},
+    success:function(data){
+    $("#hAlumno").val(data.AlumnoInfo.intAlumno);
+    $("#txtMatriculaEditar").val(data.AlumnoInfo.strMatricula);
+    $("#txtNombreCompletoEditar").val(data.AlumnoInfo.strNombreCompleto);
+    $("#txtFechaNacimientoEditar").val(data.AlumnoInfo.datFechaNacimiento);
+    $("#cmbGeneroEditar").val(data.AlumnoInfo.strGenero);
+    $("#cmbGradoEditar").val(data.AlumnoInfo.intGradoAlumno);
+    $("#cmbEstatus").val(data.AlumnoInfo.intEstatusAlumno);
+    }
+    });
+   });
+
+  $("#submitEditar").on("click",function(e){
+  e.preventDefault();
+  var formulario=$('#formEditar').serialize();
+  
+  //validar campos
+  var error = false;
+  $('#formEditar').find( 'select, input' ).each(function(){
+    if( ! $( this ).prop( 'required' )){
+    } else {
+      if ( ! $.trim($( this ).val()) ) {
+        error = true;
+        $( this ).focus();
+        return false;
+      }
+    }
+  });
+  
+  //enviar si el error es diferente a true
+  if ( error ) {
+    Message("Todos los campos son obligatorios.",false);
+  }else{
+    $.ajax({
+      url: "api/actualizarAlumnos.php",
+      type: "POST",
+      data: formulario,
+      success:function(data){
+       Message(data.message,data.status); 
+         if(data.status==true){
+          $('#modal').modal('hide');
+          loadTable();
+          }
+      }
+     });
+    }
+  }); 
+
+});
+</script>
+</body>
+</html>
